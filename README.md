@@ -1,4 +1,4 @@
-A repository for all the code snippets used in the Machine Learning Algorithms Unpacked newsletter: https://ameersaleem.substack.com/about
+A repository for all the code snippets used in the Machine Learning Algorithms Unpacked newsletter: https://ameersaleem.substack.com
 ## Working with Manim
 The following YT vid helped me with setting up Manim in VSCode: https://youtu.be/ib-I3ayqFaw?si=GgDbSHTAzo4BwwHx
 
