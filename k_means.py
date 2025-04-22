@@ -128,7 +128,9 @@ class KMeans:
 
         for i in range(self.k):
             # calculate the mean of the data points that belong to the current cluster
-            new_centroid = np.mean([data[j] for j in range(len(data)) if labels[j] == i])
+            data_in_cluster = [data[j] for j in range(len(data)) if labels[j] == i]
+            data_stack = np.stack(data_in_cluster, axis=1)
+            new_centroid = np.mean(data_stack, axis=1)
 
             new_centroids.append(new_centroid)
 
