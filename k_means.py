@@ -71,7 +71,7 @@ class KMeans:
 
         # generate k random centroids within the data range
         # (this is more robust than just taking k random points from the data)
-        centroids = [data_min + np.random.uniform()*(data_max - data_min) for _ in range(self.k)]
+        centroids = [data_min + np.random.uniform(size=len(stack))*(data_max - data_min) for _ in range(self.k)]
 
         return centroids
     
@@ -181,7 +181,7 @@ class KMeans:
         ----------
         None, although the following attributes are set:
         self.labels : list
-            The labels assigned to each data point. Each element in the listcorresponds to the 
+            The labels assigned to each data point. Each element in the list corresponds to the 
             labellings at the i-th iteration of the algorithm.
         self.centroids : list
             The coordinates of the centroids. Each element in the list corresponds to the 
