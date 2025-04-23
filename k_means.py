@@ -58,7 +58,7 @@ class KMeans:
 
         Returns
         ----------
-        centroids : list
+        centroids_init : list
             List of NumPy ndarrays. Each array represents the coordinates of a randomly initialised centroid.
         """
 
@@ -71,9 +71,9 @@ class KMeans:
 
         # generate k random centroids within the data range
         # (this is more robust than just taking k random points from the data)
-        centroids = [data_min + np.random.uniform(size=len(stack))*(data_max - data_min) for _ in range(self.k)]
+        centroids_init = [data_min + np.random.uniform(size=len(stack))*(data_max - data_min) for _ in range(self.k)]
 
-        return centroids
+        return centroids_init
     
     def get_labels(self, data, centroids):
         """
@@ -181,11 +181,12 @@ class KMeans:
         ----------
         None, although the following attributes are set:
         self.labels : list
-            The labels assigned to each data point. Each element in the list corresponds to the 
+            The labels assigned to each data point. The i-th element in the list corresponds to the 
             labellings at the i-th iteration of the algorithm.
         self.centroids : list
-            The coordinates of the centroids. Each element in the list corresponds to the 
+            The coordinates of the centroids. The (i+1)-th element in the list corresponds to the 
             centroid allocations at the i-th iteration of the algorithm.
+            (Index shift is because the centroid initial positions are stored at index 0.)
         """
 
         # initialise output lists
@@ -195,24 +196,20 @@ class KMeans:
         # initialise centroids randomly within the data range
         centroids.append(self.initialise_centroids(data))
 
-        # initialise labels based on the centroid initialisations
-        labels.append(self.get_labels(data, centroids[0]))
-
         # main loop of algorithm
         while True:
-            i += 1
+            old_centroids = centroids[i]
 
-            # update centroids and labels
-            old_centroids = centroids[i-1]
-            new_centroids = self.update_centroids(data, labels[i-1])
-            new_labels = self.get_labels(data, new_centroids)
-
-            # store new centroids and new labels
-            centroids.append(new_centroids)
+            # update labels
+            new_labels = self.get_labels(data, old_centroids)
             labels.append(new_labels)
-            
 
+            # update centroids
+            new_centroids = self.update_centroids(data, labels[i])
+            centroids.append(new_centroids)
+            
             # check stopping criteria
+            i += 1
             stopping_criteria = self.stopping_criteria(old_centroids, new_centroids, i)
             if stopping_criteria:
                 break
