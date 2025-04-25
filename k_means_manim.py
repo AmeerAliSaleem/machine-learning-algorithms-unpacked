@@ -1,6 +1,53 @@
+import random
 import numpy as np
 from manim import *
 from k_means import KMeans
+
+class three_clusters(Scene):
+    """
+    Scene depicting data points already arranged in three groups.
+
+    Each 'self.add(...)' line corresponds to one of the initial three images in the corresponding MLAU article.
+    """
+    def construct(self):
+        ax = Axes()
+
+        # set randomness seed for reproducibility
+        np.random.seed(8)
+        random.seed(8)
+
+        N = 30
+
+        # clusters centred at (1,1.5), (-3,-1) and (4,-2)
+        cluster1 = [Cross().set_color(MAROON).set_opacity(0.5).scale(0.1).move_to(np.array([1+np.random.uniform(-1,1), 1.5+np.random.uniform(-1,1), 0])) for _ in range(N)]
+        cluster2 = [Cross().set_color(GOLD).set_opacity(0.5).scale(0.1).move_to(np.array([-3+np.random.uniform(-1,1), -1+np.random.uniform(-1,1), 0])) for _ in range(N)]
+        cluster3 = [Cross().set_color(TEAL).set_opacity(0.5).scale(0.1).move_to(np.array([4+np.random.uniform(-1,1), -2+np.random.uniform(-1,1), 0])) for _ in range(N)]
+
+        clusters = [*cluster1, *cluster2, *cluster3]
+
+        centroid1_choice = random.choice(clusters)
+        centroid1 = Dot(centroid1_choice.get_center(), color=centroid1_choice.get_color(), radius=0.12)
+        centroid2_choice = random.choice(clusters)
+        centroid2 = Dot(centroid2_choice.get_center(), color=centroid2_choice.get_color(), radius=0.12)
+        centroid3_choice = random.choice(clusters)
+        centroid3 = Dot(centroid3_choice.get_center(), color=centroid3_choice.get_color(), radius=0.12)
+
+        coordinates_unpacked = [cross.get_center() for cross in clusters]
+        coordinate_stack = np.stack(coordinates_unpacked, axis=1)
+
+        coords_min = np.min(coordinate_stack, axis=1)
+        coords_max = np.max(coordinate_stack, axis=1)
+
+        top_left = np.array([coords_min[0], coords_max[1], 0])
+        top_right = np.array([coords_max[0], coords_max[1], 0])
+        bottom_right = np.array([coords_max[0], coords_min[1], 0])
+        bottom_left = np.array([coords_min[0], coords_min[1], 0])
+
+        bounding_box = Polygon(top_left, top_right, bottom_right, bottom_left, color=YELLOW)
+
+        # self.add(ax, *cluster1, *cluster2, *cluster3)
+        # self.add(ax, *cluster1, *cluster2, *cluster3, centroid1, centroid2, centroid3)
+        self.add(ax, *cluster1, *cluster2, *cluster3, bounding_box)
 
 class kMeansVisual(Scene):
     """
