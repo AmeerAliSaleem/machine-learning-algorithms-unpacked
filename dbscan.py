@@ -30,12 +30,21 @@ class dbscan:
     def neighbours(self, current_node, data):
         """
         Finds the indices of all the neighbours of {currentnode} that are at most {eps} away, in ascending order of distance.
+
+        Parameters
+        ----------
+        current_node : np.ndarray
+            The data point to find the neighbours of.
+        data : list
+            The list of data points.
+
+        Returns
+        ----------
+        closest_neighbours_indices : list
+            A list containin the indices of all the neighbours of {current_node} that are at most {eps} away.
         """
 
-        closest_neighbours = [(point, self.euclidean_distance(point, current_node)) for point in data]# if not np.array_equal(point, current_node)]
-
-        # sort ascending order of distance
-        # closest_neighbours.sort(key = lambda x: x[1])
+        closest_neighbours = [(point, self.euclidean_distance(point, current_node)) for point in data]
 
         # remove neighbours that are not close enough
         closest_neighbours_indices = [index for index, val in enumerate(closest_neighbours) if val[1] <= self.eps]
@@ -43,9 +52,19 @@ class dbscan:
         return closest_neighbours_indices
 
 
-    def corePoints(self, data):
+    def core_points(self, data):
         """
         Builds a list whose elements correspond to the indices of core points.
+
+        Parameters
+        ----------
+        data : list
+            The list of data points.
+
+        Returns
+        ----------
+        core_points : list
+            A list containing the indices of all the core points in the data.
         """
 
         core_points = []
@@ -59,9 +78,28 @@ class dbscan:
         return core_points
 
 
-    def expandCluster(self, data, labels, current_point_index, neighbours_indices, current_cluster_index):
+    def expand_cluster(self, data, labels, current_point_index, neighbours_indices, current_cluster_index):
         """
         Expands the current cluster starting from the data point with index {current_point_index}.
+
+        Parameters
+        ----------
+        data : list
+            The list of data points.
+        labels : list
+            The list containing the cluster labellings for each point. The i-th element contains the cluster index
+            of the i-th point.
+        current_point_index : int
+            The index of the point at which the current cluster is being expanded from.
+        neighbours_indices : list
+            A list containing the indices of all the neighbours of the current data point.
+        current_cluster_index : int
+            The index of the cluster that is currently being expanded.
+
+        Returns
+        ----------
+        labels : list
+            The clustering labelling list that was given as input.
         """
 
         labels[current_point_index] = current_cluster_index
@@ -96,6 +134,15 @@ class dbscan:
         """
         Applies the DBSCAN algorithm to cluster the data.
         If a random starting point for the algorithm is desired, then the data must first be shuffled.
+
+        Parameters
+        ----------
+        data : list
+            The list of data points.
+
+        Returns
+        ----------
+        None, but stores the cluster allocations in the `labels` list of the class.
         """
 
         # instantiate output list
@@ -104,7 +151,7 @@ class dbscan:
         cluster_index = 0
 
         # store index values of all core points
-        core_points = self.corePoints(data)
+        core_points = self.core_points(data)
 
         for current_point_index in range(len(data)):
             # go to the next point if the current point has already been classified/ignored
@@ -114,43 +161,9 @@ class dbscan:
             if current_point_index in core_points:
                 cluster_index += 1
                 neighbours_indices = self.neighbours(data[current_point_index], data)
-                # print(labels)
-                # print(neighbours_indices)
-                labels = self.expandCluster(data, labels, current_point_index, neighbours_indices, cluster_index)
-                # print(labels,"\n\n")
+                labels = self.expand_cluster(data, labels, current_point_index, neighbours_indices, cluster_index)
             else:
                 # non-core points are assigned the label '-1' for now
                 labels[current_point_index] = -1
 
-        self.labels = labels
-
-        # # step 1: create dictionaries to store the information about the neighbours of all the points
-        # core_dict = {}
-        # non_core_dict = {}
-
-        # for point in data:
-        #     current_node_neighbours = self.nodeNeighbours(point)
-        #     if len(current_node_neighbours) >= self.minPoints:
-        #         core_dict[point] = self.nodeNeighbours(point)
-        #     else:
-        #         non_core_dict[point] = self.nodeNeighbours(point)
-
-        # # step 2: 
-        # clusters = {}
-        # cluster_index = 0
-
-        # # repeat the following as long as there are still core points that haven't been assigned a cluster
-        # while core_dict:
-        #     clusters[cluster_index] = []
-
-        #     random_core_point = np.random.choice(list(core_dict.keys()))
-
-        #     clusters[cluster_index].append(random_core_point)
-
-        #     # add each core neighbour of random_core_point to the same cluster
-        #     for neighbour in core_dict[random_core_point]:
-        #         clusters[cluster_index].append(neighbour)
-
-        #     core_dict.pop(random_core_point)
-
-        #     cluster_index += 1        
+        self.labels = labels     
