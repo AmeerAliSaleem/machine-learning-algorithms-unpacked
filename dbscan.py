@@ -29,13 +29,13 @@ class dbscan:
 
     def neighbours(self, current_node, data):
         """
-        Finds the indices of all the neighbours of {currentnode} that are at most {eps} away.
+        Finds the indices of all the neighbours of {currentnode} that are at most {eps} away, in ascending order of distance.
         """
 
-        closest_neighbours = [(point, self.euclidean_distance(point, current_node)) for point in data if not np.array_equal(point, current_node)]
+        closest_neighbours = [(point, self.euclidean_distance(point, current_node)) for point in data]# if not np.array_equal(point, current_node)]
 
         # sort ascending order of distance
-        closest_neighbours.sort(key = lambda x: x[1])
+        # closest_neighbours.sort(key = lambda x: x[1])
 
         # remove neighbours that are not close enough
         closest_neighbours_indices = [index for index, val in enumerate(closest_neighbours) if val[1] <= self.eps]
@@ -69,19 +69,23 @@ class dbscan:
         visited = set(neighbours_indices)
 
         while i < len(neighbours_indices):
-            neighbour = neighbours_indices[i]
+            neighbour_index = neighbours_indices[i]
 
-            if labels[neighbour] == -1:
-                # non-core point: simply joins the current cluster
-                labels[neighbour] = current_cluster_index
-            elif labels[neighbour] == 0:
+            if labels[neighbour_index] == -1:
+                # non-core point that is a neigbour to the current core point:
+                # this non-core point simply joins the current cluster
+                labels[neighbour_index] = current_cluster_index
+            elif labels[neighbour_index] == 0:
                 # unassigned core point: the current cluster expands to this core point's neighbours
-                labels[neighbour] = current_cluster_index
+                labels[neighbour_index] = current_cluster_index
                 # new_neighbours = self.neighbours(data[current_point_index], data)
-                new_neighbours = self.neighbours(data[neighbour], data)
-                # any core point should have its neighbours included in the current cluster
+                new_neighbours = self.neighbours(data[neighbour_index], data)
                 if len(new_neighbours) >= self.minPoints:
-                    neighbours_indices.extend(new_neighbours)
+                    # neighbours_indices.extend(new_neighbours)
+                    for new_neighbour in new_neighbours:
+                        if new_neighbour not in visited:
+                            neighbours_indices.append(new_neighbour)
+                            visited.add(new_neighbour)
 
             i += 1
         
@@ -91,6 +95,7 @@ class dbscan:
     def fit(self, data):
         """
         Applies the DBSCAN algorithm to cluster the data.
+        If a random starting point for the algorithm is desired, then the data must first be shuffled.
         """
 
         # instantiate output list
@@ -109,8 +114,12 @@ class dbscan:
             if current_point_index in core_points:
                 cluster_index += 1
                 neighbours_indices = self.neighbours(data[current_point_index], data)
+                # print(labels)
+                # print(neighbours_indices)
                 labels = self.expandCluster(data, labels, current_point_index, neighbours_indices, cluster_index)
+                # print(labels,"\n\n")
             else:
+                # non-core points are assigned the label '-1' for now
                 labels[current_point_index] = -1
 
         self.labels = labels
