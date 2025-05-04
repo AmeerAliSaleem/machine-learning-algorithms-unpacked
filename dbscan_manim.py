@@ -67,7 +67,6 @@ class moons(Scene):
         for i in range(0, len(centroids_history)-1):
             self.play(ReplacementTransform(iteration_text_numbers[i], iteration_text_numbers[i+1]))
             self.play(Indicate(iteration_text_numbers[i+1]))
-            # self.play(Indicate(colour_update_text))
 
             if i == 0:
                 self.play(*[Circumscribe(data_point, Circle) for data_point in data])
@@ -93,7 +92,6 @@ class moons(Scene):
                 self.wait()
 
             # animate centroid position changes
-            # self.play(Indicate(centroid_update_text))
             self.play(*[Transform(centroids_history[0][j], centroids_history[i+1][j]) for j in range(K)], run_time=2)
             self.wait()
         
@@ -104,8 +102,8 @@ class dbscan_animated(Scene):
     Animation depicting how the DBSCAN algorithm works on a dataset.
     """
     def construct(self):
-        ax = Axes(x_range=[-6,6,1], y_range=[-3,3,1])
-        colours = [RED_B, GREEN_B, BLUE_B, GOLD_B, PURPLE_B, TEAL_B]
+        ax = Axes(x_range=[-6,6,1], y_range=[-3,3,1], axis_config={'include_numbers': True})
+        colours = [GREEN_B, RED_B, BLUE_B, GOLD_B, PURPLE_B, TEAL_B]
 
         # set seeds for reproducibility
         np.random.seed(8)
@@ -123,19 +121,25 @@ class dbscan_animated(Scene):
         moon2 = [Dot(ax.c2p(point[0], point[1], 0)).set_opacity(0.5) for point in cluster2]
         data = [*moon1, *moon2]
 
-        EPS = 0.2
+        EPS = 0.3
         MINPOINTS = 4
 
         dbs = dbscan(eps=EPS, minPoints=MINPOINTS)
-        dbs.fit(X)
+        dbs.fit(data_raw)
 
-        cluster_text = Text("Cluster", font_size=30).move_to(np.array([-5,3,0]))
+        cluster_text = Text("Cluster", font_size=30).move_to(np.array([-5,2,0]))
         cluster_text_numbers = [MathTex('0').next_to(cluster_text, RIGHT)]
         extra_numbers = [MathTex(f'{cluster_num}').next_to(cluster_text, RIGHT) for cluster_num in list(dbs.history.keys())]
 
+        text_eps = MathTex(fr"\varepsilon = {EPS}")
+        text_minPoints = MathTex(f"minPoints = {MINPOINTS}")
+
+        text_vgroup = VGroup(text_eps, text_minPoints).move_to(np.array([3,2,0]))
+        text_vgroup.arrange(DOWN, center=False, aligned_edge=LEFT)
+
         cluster_text_numbers.extend(extra_numbers)
 
-        self.add(ax, cluster_text, *data)
+        self.add(ax, cluster_text, text_eps, text_minPoints, *data)
 
         self.play(Write(cluster_text_numbers[0]))
         self.wait()
@@ -149,10 +153,11 @@ class dbscan_animated(Scene):
             self.play(Indicate(cluster_text_numbers[cluster_num]))
 
             for point_index in point_index_list:
-                colour_animations.append(data[point_index].animate.set_color(colours[cluster_num]))
+                colour_animations.append(Flash(data[point_index], color=colours[cluster_num-1]))
+                colour_animations.append(data[point_index].animate.set_color(colours[cluster_num-1]))
 
             # animate the expansion of the current cluster
-            self.play(LaggedStart(*colour_animations), lag_ratio=0.1)
+            self.play(LaggedStart(*colour_animations))#, lag_ratio=0.01)
 
             self.wait()
 

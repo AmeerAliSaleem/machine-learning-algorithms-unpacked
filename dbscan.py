@@ -1,9 +1,33 @@
 import numpy as np
 
 class dbscan:
+    """
+    A class for performing the DBSCAN algorithm on a dataset. The data is expected to be in the form
+    of a list of NumPy ndarrays, where each ndarray represents the coordinates of a point.
+
+    Attributes:
+        eps : float
+            The distance beneath which a pair of points are considered to be neighbours.
+        minPoints : int
+            The minimum number of neighbours a point must have to be considered a core point.
+        history : dict
+            The history of clustering assignments. Useful for Manim animations.
+        labels : list
+            The list containing the cluster labellings for each point.
+            The i-th element contains the cluster index of the i-th point.
+    """
     def __init__(self, eps=1, minPoints=5):
+        """
+        Parameters
+        ----------
+        eps : float, optional
+            The distance beneath which a pair of points are considered to be neighbours.
+        minPoints : int, optional
+            The minimum number of neighbours a point must have to be considered a core point.
+        """
         self.eps = eps
         self.minPoints = minPoints
+        self.history = {}
     
 
     def euclidean_distance(self, point1, point2):
@@ -29,7 +53,7 @@ class dbscan:
 
     def neighbours(self, current_node, data):
         """
-        Finds the indices of all the neighbours of {currentnode} that are at most {eps} away, in ascending order of distance.
+        Finds the indices of all the neighbours of {current_node} that are at most {eps}.
 
         Parameters
         ----------
@@ -41,7 +65,7 @@ class dbscan:
         Returns
         ----------
         closest_neighbours_indices : list
-            A list containin the indices of all the neighbours of {current_node} that are at most {eps} away.
+            A list containing the indices of all the neighbours of {current_node} that are at most {eps} away.
         """
 
         closest_neighbours = [(point, self.euclidean_distance(point, current_node)) for point in data]
@@ -102,7 +126,12 @@ class dbscan:
             The clustering labelling list that was given as input.
         """
 
+        # store the cluster assignment for the current point
         labels[current_point_index] = current_cluster_index
+
+        # list to keep track of the order in which clusters are assigned
+        cluster_assigned = [current_point_index]
+        
         i = 0
         visited = set(neighbours_indices)
 
@@ -113,10 +142,12 @@ class dbscan:
                 # non-core point that is a neigbour to the current core point:
                 # this non-core point simply joins the current cluster
                 labels[neighbour_index] = current_cluster_index
+
+                cluster_assigned.append(neighbour_index)
             elif labels[neighbour_index] == 0:
                 # unassigned core point: the current cluster expands to this core point's neighbours
                 labels[neighbour_index] = current_cluster_index
-                # new_neighbours = self.neighbours(data[current_point_index], data)
+                cluster_assigned.append(neighbour_index)
                 new_neighbours = self.neighbours(data[neighbour_index], data)
                 if len(new_neighbours) >= self.minPoints:
                     # neighbours_indices.extend(new_neighbours)
@@ -127,6 +158,8 @@ class dbscan:
 
             i += 1
         
+        self.history[current_cluster_index] = cluster_assigned
+
         return labels
 
 
@@ -164,6 +197,7 @@ class dbscan:
                 labels = self.expand_cluster(data, labels, current_point_index, neighbours_indices, cluster_index)
             else:
                 # non-core points are assigned the label '-1' for now
+                # if this non-core point is an outlier, its label will stay as '-1'
                 labels[current_point_index] = -1
 
         self.labels = labels     
