@@ -116,7 +116,7 @@ class KMeans:
         data : list
             List of NumPy ndarrays. Each array represents the coordinates of a data point.
         labels : list
-            List of integers. Each integer represents the cluster whose centroid each data point is closest to.
+            List of integers. The i-th integer represents the cluster centroid that the i-th data point is closest to.
 
         Returns
         ----------
