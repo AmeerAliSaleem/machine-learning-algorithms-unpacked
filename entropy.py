@@ -5,17 +5,7 @@ from manim import *
 
 class self_information(Scene):
     def construct(self):
-        plane = NumberPlane(
-            x_range=[0.05, 1],
-            y_range=[-5,10],
-            # x_length=10,
-            # y_length=10,
-            background_line_style={
-                "stroke_color": TEAL,
-                "stroke_width": 4,
-                "stroke_opacity": 0.4
-            }
-        )
+        self.camera.background_color = '#111111'
 
         log_tol = 0.001
         y_max = -1*np.log2(log_tol)
@@ -33,8 +23,8 @@ class self_information(Scene):
             lambda x : -1*np.log2(x),
             x_range=[log_tol, 1, 0.001],
             use_smoothing=True,
-            color=YELLOW_C
-        )
+            color='#E8C547'
+        ).set_stroke(width=7)
 
 
         self.add(ax, labels, information_plot)
@@ -42,6 +32,7 @@ class self_information(Scene):
 
 class entropy_plot(Scene):
     def construct(self):
+        self.camera.background_color = '#111111'
         p = ValueTracker(0)
 
         ax = Axes(
@@ -72,15 +63,6 @@ class entropy_plot(Scene):
                 MathTex(r"p").next_to(bar_chart.bars[0], DOWN),      # Label for first bar
                 MathTex(r"1 - p").next_to(bar_chart.bars[1], DOWN)   # Label for second bar
             )
-
-        # bar_chart = BarChart(
-        #     values=[p.get_value(), 1-p.get_value()],
-        #     bar_names=["p", "1-p"],
-        #     y_range=[0, 1, 0.5],
-        #     x_length=4,
-        #     y_length=4,
-        #     x_axis_config={"font_size": 36},
-        # ).move_to([-3,0,0])
 
         bar_chart = always_redraw(get_bar_chart)
         bar_chart_labels = always_redraw(lambda: get_labels(bar_chart))
