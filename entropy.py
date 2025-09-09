@@ -55,7 +55,7 @@ class entropy_plot(Scene):
                 x_length=4,
                 y_length=4,
                 x_axis_config={"font_size": 36},
-                bar_colors=[RED, BLUE]
+                bar_colors=['#d81e5b', '#6290c3']
             ).move_to([-4,0,0])
         
         def get_labels(bar_chart):
@@ -70,11 +70,11 @@ class entropy_plot(Scene):
         entropy = ax.plot(
             lambda x : -x*np.log2(x) - (1-x)*np.log2(1-x) if (0<x and x<1) else 0,
             x_range=[0,1],
-            color=YELLOW_C
+            color='#E8C547'
         )
 
         dot = always_redraw(
-            lambda : Dot(color=RED).move_to(
+            lambda : Dot(color='#d81e5b').move_to(
                 ax.c2p(p.get_value(), entropy.underlying_function(p.get_value()))
             )
         )
