@@ -9,12 +9,10 @@ def derivative_square_func(x):
     return 2*x
 
 def multiple_local_minima(x):
-    # return x**4 - 2*x**2 + x
-    return (x**2-2*x)**2 + 0.5*np.sin(12*x)
+    return x**4 - 2*x**2 + x
 
 def derivative_multiple_local_minima(x):
-    # return 4*x**3 - 4*x + 1
-    return 4*x**3 - 12*x**2 + 8*x + 6*np.cos(12*x)
+    return 4*x**3 - 4*x + 1
 
 def oscillating_func(x):
     return (x**2-2*x)**2 + 0.5*np.sin(12*x)
@@ -256,7 +254,7 @@ class adam(Scene):
         func = ax.plot(
             lambda x: multiple_local_minima(x),
             x_range=[-2.5,2.5],
-            color="#5CD0B3"
+            color="#5ce1e6"
         )
 
         # Number of desired gradient descent steps
